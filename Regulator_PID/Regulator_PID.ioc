@@ -34,13 +34,23 @@ Mcu.Pin27=PB3
 Mcu.Pin28=PB7
 Mcu.Pin29=VP_SYS_VS_Systick
 Mcu.Pin3=PH0/OSC_IN
+<<<<<<< Updated upstream
+=======
+Mcu.Pin30=PB9
+Mcu.Pin31=VP_SYS_VS_Systick
+Mcu.Pin32=VP_TIM7_VS_ClockSourceINT
+>>>>>>> Stashed changes
 Mcu.Pin4=PH1/OSC_OUT
 Mcu.Pin5=PC1
 Mcu.Pin6=PA1
 Mcu.Pin7=PA2
 Mcu.Pin8=PA7
 Mcu.Pin9=PC4
+<<<<<<< Updated upstream
 Mcu.PinsNb=30
+=======
+Mcu.PinsNb=33
+>>>>>>> Stashed changes
 Mcu.ThirdPartyNb=0
 Mcu.UserConstants=
 Mcu.UserName=STM32F746ZGTx
@@ -56,6 +66,10 @@ NVIC.PendSV_IRQn=true\:0\:0\:false\:false\:true\:true\:false
 NVIC.PriorityGroup=NVIC_PRIORITYGROUP_4
 NVIC.SVCall_IRQn=true\:0\:0\:false\:false\:true\:true\:false
 NVIC.SysTick_IRQn=true\:0\:0\:false\:false\:true\:true\:true
+<<<<<<< Updated upstream
+=======
+NVIC.TIM7_IRQn=true\:0\:0\:false\:false\:true\:true\:true
+>>>>>>> Stashed changes
 NVIC.UsageFault_IRQn=true\:0\:0\:false\:false\:true\:true\:false
 PA1.GPIOParameters=GPIO_Label
 PA1.GPIO_Label=RMII_REF_CLK [LAN8742A-CZ-TR_REFCLK0]
@@ -203,7 +217,11 @@ ProjectManager.StackSize=0x400
 ProjectManager.TargetToolchain=STM32CubeIDE
 ProjectManager.ToolChainLocation=
 ProjectManager.UnderRoot=true
+<<<<<<< Updated upstream
 ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-SystemClock_Config-RCC-false-HAL-false,3-MX_USART3_UART_Init-USART3-false-HAL-true,0-MX_CORTEX_M7_Init-CORTEX_M7-false-HAL-true
+=======
+ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-SystemClock_Config-RCC-false-HAL-false,3-MX_USART3_UART_Init-USART3-false-HAL-true,4-MX_I2C1_Init-I2C1-false-HAL-true,0-MX_CORTEX_M7_Init-CORTEX_M7-false-HAL-true
+>>>>>>> Stashed changes
 RCC.48MHZClocksFreq_Value=24000000
 RCC.ADC12outputFreq_Value=72000000
 RCC.ADC34outputFreq_Value=72000000
