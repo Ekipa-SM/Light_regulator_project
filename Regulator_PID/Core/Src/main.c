@@ -131,7 +131,6 @@ int main(void)
 	   sprintf(intensywnosc,"%.3f [Lx]\r", light);
 	   HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
 	   HAL_Delay(1000);
-	   float w;
 
   }
   /* USER CODE END 3 */
