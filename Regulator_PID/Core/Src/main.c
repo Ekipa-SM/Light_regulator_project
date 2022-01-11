@@ -18,12 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bh1750.h"
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,6 +46,15 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+//int length;
+//volatile uint16_t licznik = 500;
+//char wartosc[6];
+//uint16_t data_msg[32];
+//int Light = -1;
+//char text[3];
+//int time=1000;
+//int var=1;
+
 
 /* USER CODE END PV */
 
@@ -86,7 +98,15 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
+  MX_I2C1_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+   BH1750_HandleTypeDef hbh1750_1 = {
+   .I2C = &hi2c1, .Address = BH1750_ADDRESS_L, .Timeout = 0xffff};
+   //Inicjalizacja czujnika z wybranym trybem pracy
+   uint8_t TrybPracy = BH1750_CONTINOUS_H_RES_MODE;
+   BH1750_Init(&hbh1750_1, TrybPracy);
+   float light = 0;
 
   /* USER CODE END 2 */
 
@@ -95,9 +115,23 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  float jeden = 1;
+
     /* USER CODE BEGIN 3 */
-	  float w = 2.0;
+	  //wysłanie do portu szeregowego i odczyt natężenia światła
+	  //length = sprintf(data_msg, "%6d\n\r", (int)Light);
+
+	  //HAL_UART_Receive_IT(&huart3, (uint8_t*)data_msg, 3);
+//	  Light = BH1750_ReadLux(&hbh1750_1);
+//	  sprintf(text,"Natezenie swiatla: %6d[lux]\r\n",Light);
+//	  HAL_UART_Transmit(&huart3,text,strlen(text),1000);
+//	  HAL_Delay(time);
+
+	   light = BH1750_Read(&hbh1750_1);
+	   char intensywnosc[20];
+	   sprintf(intensywnosc,"%.3f [Lx]\r", light);
+	   HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
+	   HAL_Delay(1000);
+
   }
   /* USER CODE END 3 */
 }
