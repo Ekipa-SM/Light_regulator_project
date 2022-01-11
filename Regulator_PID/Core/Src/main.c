@@ -97,6 +97,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  float w = 2.0;
   }
   /* USER CODE END 3 */
 }
