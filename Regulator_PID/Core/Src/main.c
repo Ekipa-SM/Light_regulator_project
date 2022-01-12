@@ -76,7 +76,7 @@ typedef struct{
 
 typedef float float32_t;
 float32_t system_output = 0.0;
-
+// TO TEZ DO WYWALENIA
 typedef struct{
 	float32_t A1;
 	float32_t A2;
@@ -89,7 +89,7 @@ typedef struct{
 	sos_matrix_t sos;
 	float32_t w[3];
 }single_section_t;
-
+//Do wywalenia, to jest jakas transmitancja oscylacyjna z cwiczen
 float32_t calculate_single_section(single_section_t* s, float32_t x){
 	float32_t y=0;
 	s->w[2]=x-s->sos.A1*s->w[1]- s->sos.A2*s->w[0];
@@ -104,7 +104,7 @@ BH1750_HandleTypeDef hbh1750_1 = {
 
 single_section_t discrete_LTI_system = { .w={0}, .sos.A1=-1.9451, .sos.A2=0.9693, .sos.B0=0.0121, .sos.B1=0.0242, .sos.B2=0.0121}; // gain=2; T=1/5 s; dt=5 ms;
 float32_t LTI_output, LTI_input=1.0;
-
+//Funkcja odpowiadajaca za kalkulacje PID
 float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measured){
 	float32_t u=0, P, I, D, error, integral, derivative;
 	error = setpoint-measured;
@@ -123,10 +123,13 @@ float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measu
 
 	return u;
 }
-
+// Kp - zmniejsza uchyb, nieznacznie skraca czas regulacji, zwieksza przeregulowanie
+// Ki - Sprowadza uchyb regulacji w stanie ustalonym do zera, wydluza czas regulacji, zwieksza przeregulowanie
+// Kd - nie wpływa na uchyb, wpływa na skrócenie czasu regulacji i zmniejsza przeregulowanie.
 float32_t dt=0.005, setpoint=10.0, pid_output=0.0, t = 0.0;
 pid_t pid1 = { .p.Kp=0.0727726, .p.Ki=0.109, .p.Kd=0.0, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
+// Regulacja PID
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim-> Instance == TIM7)
@@ -150,6 +153,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 }
 
+// Odbior wiadomosci z terminala, ustawienie danej wartosci jasnosci
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart -> Instance == USART3)
