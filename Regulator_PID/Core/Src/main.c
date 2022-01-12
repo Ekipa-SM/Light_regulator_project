@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2022 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -47,9 +47,10 @@
 
 /* USER CODE BEGIN PV */
 char text[] = "000";
-int luxSetValue = 0;
+float luxSetValue = 0.0;
 float32_t luxMeasuredValue = 0.0;
 float light = 0;
+
 
 /* USER CODE END PV */
 
@@ -75,7 +76,7 @@ typedef struct{
 
 typedef float float32_t;
 float32_t system_output = 0.0;
-
+// TO TEZ DO WYWALENIA
 typedef struct{
 	float32_t A1;
 	float32_t A2;
@@ -88,7 +89,7 @@ typedef struct{
 	sos_matrix_t sos;
 	float32_t w[3];
 }single_section_t;
-
+//Do wywalenia, to jest jakas transmitancja oscylacyjna z cwiczen
 float32_t calculate_single_section(single_section_t* s, float32_t x){
 	float32_t y=0;
 	s->w[2]=x-s->sos.A1*s->w[1]- s->sos.A2*s->w[0];
@@ -99,11 +100,11 @@ float32_t calculate_single_section(single_section_t* s, float32_t x){
 }
 
 BH1750_HandleTypeDef hbh1750_1 = {
-   .I2C = &hi2c1, .Address = BH1750_ADDRESS_L, .Timeout = 0xffff};
+		.I2C = &hi2c1, .Address = BH1750_ADDRESS_L, .Timeout = 0xffff};
 
 single_section_t discrete_LTI_system = { .w={0}, .sos.A1=-1.9451, .sos.A2=0.9693, .sos.B0=0.0121, .sos.B1=0.0242, .sos.B2=0.0121}; // gain=2; T=1/5 s; dt=5 ms;
 float32_t LTI_output, LTI_input=1.0;
-
+//Funkcja odpowiadajaca za kalkulacje PID
 float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measured){
 	float32_t u=0, P, I, D, error, integral, derivative;
 	error = setpoint-measured;
@@ -122,29 +123,47 @@ float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measu
 
 	return u;
 }
-
+// Kp - zmniejsza uchyb, nieznacznie skraca czas regulacji, zwieksza przeregulowanie
+// Ki - Sprowadza uchyb regulacji w stanie ustalonym do zera, wydluza czas regulacji, zwieksza przeregulowanie
+// Kd - nie wpływa na uchyb, wpływa na skrócenie czasu regulacji i zmniejsza przeregulowanie.
 float32_t dt=0.005, setpoint=10.0, pid_output=0.0, t = 0.0;
-pid_t pid1 = { .p.Kp=0.0027726, .p.Ki=1.109, .p.Kd=0.0, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+pid_t pid1 = { .p.Kp=0.0727726, .p.Ki=0.109, .p.Kd=0.0, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
+// Regulacja PID
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim-> Instance == TIM7)
 	{
 		luxMeasuredValue = BH1750_Read(&hbh1750_1);
-		pid_output = calculate_discrete_pid(&pid1, luxSetValue, luxMeasuredValue );
+		if(luxSetValue!=0)
+		{
+			pid_output = calculate_discrete_pid(&pid1, luxSetValue, luxMeasuredValue );
+		}
+	}
+	if(htim-> Instance == TIM2)
+	{
+		if(pid_output > 0 )
+		{
+			TIM3->CCR3 = TIM3->CCR3 + 10;
+		}
+		else if(pid_output < 0 )
+		{
+			TIM3->CCR3 = TIM3->CCR3 - 10;
+		}
 	}
 }
 
+// Odbior wiadomosci z terminala, ustawienie danej wartosci jasnosci
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if(huart -> Instance == USART3)
-    {
-        HAL_UART_Receive_IT(&huart3, (uint8_t*)text, strlen(text));
-        int l100 = (text[2]-48)*100;
-        int l10 = (text[1]-48)*10;
-        int l1 = text[0]-48;
-        luxSetValue = l100+l10+l1;
-    }
+	if(huart -> Instance == USART3)
+	{
+		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, strlen(text));
+		int l100 = (text[2]-48)*100;
+		int l10 = (text[1]-48)*10;
+		int l1 = text[0]-48;
+		luxSetValue = l100+l10+l1;
+	}
 }
 /* USER CODE END 0 */
 
@@ -179,30 +198,34 @@ int main(void)
   MX_USART3_UART_Init();
   MX_I2C1_Init();
   MX_TIM7_Init();
+  MX_TIM3_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-   //Inicjalizacja czujnika z wybranym trybem pracy
-   uint8_t TrybPracy = BH1750_CONTINOUS_H_RES_MODE;
-   BH1750_Init(&hbh1750_1, TrybPracy);
-   HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 1);
-   HAL_TIM_Base_Start_IT(&htim7);
+	//Inicjalizacja czujnika z wybranym trybem pracy
+	uint8_t TrybPracy = BH1750_CONTINOUS_H_RES_MODE;
+	BH1750_Init(&hbh1750_1, TrybPracy);
+	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 1);
+	HAL_TIM_Base_Start_IT(&htim7);
+	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	while (1)
+	{
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	   light = BH1750_Read(&hbh1750_1);
-	   char intensywnosc[20];
-	   sprintf(intensywnosc,"%.3f [Lx]\r", light);
-	   HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
-	   HAL_Delay(1000);
+		light = BH1750_Read(&hbh1750_1);
+		char intensywnosc[20];
+		sprintf(intensywnosc,"%.3f [Lx]\r", light);
+		HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
+		HAL_Delay(1000);
 
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -263,11 +286,11 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1)
+	{
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -282,7 +305,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
+	/* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
