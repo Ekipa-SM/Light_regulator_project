@@ -46,7 +46,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-char text[]="000";
+//char text[]="000";
+char text[3];
 float luxSetValue = 0.0;
 float luxMeasuredValue = 0.0;
 float light = 0;
@@ -123,28 +124,18 @@ float32_t pidOutput = 0.0;
 //Najlepsze regulacja 0.5s WOJTEK Z MIKOLAJA MATLABA
 pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
+//Dla L
+//pid_t pid1 = { .p.Kp=0.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 // Regulacja PID
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim-> Instance == TIM7)
 	{
 		luxMeasuredValue = BH1750_Read(&hbh1750_1);
-		//		if(luxSetValue > 0)
-		//					TIM3->CCR3 = pid_output;
 	}
 	if(htim-> Instance == TIM2)
 	{
 		pidOutput = calculate_discrete_pid(&pid1, luxSetValue, luxMeasuredValue );
-//		if(pidOutput<0)
-//		{
-//			pidOutput = 0;
-//		}
-//		else if(pidOutput > 1000)
-//		{
-//			pidOutput = 1000;
-//		}
-//		if(pidOutput!=0 || pidOutput!=1000)
-//			TIM3->CCR3 = pidOutput;
 		TIM3->CCR3 = pidOutput;
 	}
 }
@@ -154,12 +145,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart -> Instance == USART3)
 	{
-		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 4);
-		int l100 = (text[0]-48)*100;
-		int l10 = (text[1]-48)*10;
-		int l1 = text[2]- 48;
-		luxSetValue = l100+l10+l1;
-//		luxSetValue = atof(text);
+		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
+		luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
+		//luxSetValue = atof(text);
 	}
 }
 /* USER CODE END 0 */
@@ -206,7 +194,7 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 1);
+	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -216,7 +204,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 4);
 
 	}
   /* USER CODE END 3 */
