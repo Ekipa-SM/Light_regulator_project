@@ -46,7 +46,8 @@ void LCD_init(void)
 	//Display on
 	LCD_write_command(LCD_DISPLAY_INSTRUCTION | LCD_DISPLAY_ON | LCD_DISPLAY_CURSOR_OFF | LCD_DISPLAY_BLINK_OFF);software_delay(100000);
 	//Display clear
-	LCD_write_command(LCD_CLEAR_INSTRUCTION);software_delay(100000);
+	LCD_write_command(LCD_CLEAR_INSTRUCTION);
+	software_delay(100000);
 	//Entry mode
 	LCD_write_command(LCD_ENTRY_MODE_INSTRUCTION | LCD_ENTRY_MODE_INCREMENT | LCD_ENTRY_MODE_SHIFT_DISPLAY_OFF);software_delay(100000);
 	//Init end
@@ -54,9 +55,9 @@ void LCD_init(void)
 	//Return home
 	LCD_write_command(LCD_HOME_INSTRUCTION);	software_delay(100000);
 	
-	LCD_write_text("Dominik Luczak");
+	LCD_write_text("Torunczyk Chuj");
 	LCD_goto_line(1);
-	LCD_write_text("Text in line 2");
+	LCD_write_text("Rydzyk go jebal");
 
 	uint8_t custom_char1[] = LCD_CUSTOM_CHAR_ARROW_UP_PATERN;
 	LCD_create_custom_character(custom_char1, 0);

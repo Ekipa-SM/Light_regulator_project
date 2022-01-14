@@ -118,8 +118,6 @@ void MX_TIM3_Init(void)
   HAL_TIM_MspPostInit(&htim3);
 
 }
-<<<<<<< Updated upstream
-=======
 /* TIM4 init function */
 void MX_TIM4_Init(void)
 {
