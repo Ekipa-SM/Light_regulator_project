@@ -174,44 +174,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				startPrinting = 0;
 			}else if((strncmp("setValue=",inputCommand,9)==0))			//Ustalenie wartosci swiatla
 			{
-//				int n = 0;
-//				char tmpValue[5];
-//				for(int i=9; i< 15; i++)
-//				{
-//					if(inputCommand[i]!='\0')
-//					{
-//						tmpValue[n]=inputCommand[i];
-//						n++;
-//					}else
-//					{
-//						i = 15;
-//					}
-//				}
-//				luxSetValue = atoi(tmpValue);
 				luxSetValue = readingString(9, 15, inputCommand);
 			}else if((strncmp("freq=",inputCommand,5)==0))
 			{
-//				int n = 0;
-//				char tmpValue[5];
-//				for(int i=5; i< 7; i++)
-//				{
-//					if(inputCommand[i]!='\0')
-//					{
-//						tmpValue[n]=inputCommand[i];
-//						n++;
-//					}else
-//					{
-//						i = 7;
-//					}
-//				}
-//				sendingFrequency = atoi(tmpValue);
 				sendingFrequency = readingString(5, 7, inputCommand);
 				TIM4-> ARR = 9999/sendingFrequency;
 			}
 			memset(inputCommand, '\0', strlen(inputCommand)); //czyszczenietablicy char
 		}
-		//		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
-		//		luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
 	}
 }
 /* USER CODE END 0 */
