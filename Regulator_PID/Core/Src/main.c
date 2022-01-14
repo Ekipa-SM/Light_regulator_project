@@ -119,8 +119,12 @@ float32_t pidOutput = 0.0;
 //Zmiany
 //pid_t pid1 = { .p.Kp=2.5998, .p.Ki=2.5998/0.093233, .p.Kd=2.5998*0.017511, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
-//Najlepsze regulacja 0.5s WOJTEK Z MIKOLAJA MATLABA
-pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+//Najlepsze regulacja 0.5s
+//Dla zielonych diod
+//pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+
+//Dla czerownych diod
+pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla L
 //pid_t pid1 = { .p.Kp=0.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
