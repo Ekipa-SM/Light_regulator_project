@@ -4,6 +4,7 @@
 /Debug.launch/
 /.settings/
 /.mxproject/
+/pomiary_python.txt/
 Regulator_PID/.mxproject
 Regulator_PID/.settings/language.settings.xml
 Regulator_PID/.settings/stm32cubeide.project.prefs

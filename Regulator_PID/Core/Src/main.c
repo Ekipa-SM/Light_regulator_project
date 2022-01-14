@@ -25,8 +25,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+//#include <stdio.h>
 #include "bh1750.h"
 #include "arm_math.h"
+#include "LCD.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,10 +49,16 @@
 
 /* USER CODE BEGIN PV */
 //char text[]="000";
-char text[3];
-float luxSetValue = 0.0;
+char kod[3];
+int luxSetValue = 0;
 float luxMeasuredValue = 0.0;
 float light = 0;
+char text_buffer[LCD_MAXIMUM_LINE_LENGTH];
+
+//Zmienne do pythona i komunikacji poprzez UART
+char inputCommand[20];
+int startPrinting = 0;
+int sendingFrequency = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,32 +110,13 @@ float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measu
 // Ki - Sprowadza uchyb regulacji w stanie ustalonym do zera, wydluza czas regulacji, zwieksza przeregulowanie
 // Kd - nie wpływa na uchyb, wpływa na skrócenie czasu regulacji i zmniejsza przeregulowanie.
 float32_t pidOutput = 0.0;
-//pid_t pid1 = { .p.Kp=0.555*4.608, .p.Ki=2*0.00625, .p.Kd=0.4 * 0.00625, .p.dt=0.05, .previous_error=0, .previous_integral=0 };
 
-//Eryka
-//pid_t pid1 = { .p.Kp=0.0024, .p.Ki=0.945, .p.Kd=0.000, .p.dt=0.005, .previous_error=0, .previous_integral=0};
-
-//Zmiany Kuba
-//pid_t pid1 = { .p.Kp=0.0024, .p.Ki=0.945, .p.Kd=0.189, .p.dt=0.005, .previous_error=0, .previous_integral=0};
-//pid_t pid1 = { .p.Kp=0.1, .p.Ki=0.945, .p.Kd=0.150, .p.dt=0.005, .previous_error=0, .previous_integral=0};
-
-//Najlepsze:
-//pid_t pid1 = { .p.Kp=0.64649, .p.Ki=0.64649/0.069384, .p.Kd=0.64649*0.017346, .p.dt=0.005, .previous_error=0, .previous_integral=0};
-
-//Nowe Wojtka
-//pid_t pid1 = { .p.Kp=1.4745, .p.Ki=0.08154, .p.Kd=0.017796, .p.dt=0.005, .previous_error=0, .previous_integral=0};
-//Zmiany
-//pid_t pid1 = { .p.Kp=2.5998, .p.Ki=2.5998/0.093233, .p.Kd=2.5998*0.017511, .p.dt=0.005, .previous_error=0, .previous_integral=0};
-
-//Najlepsze regulacja 0.5s
 //Dla zielonych diod
 //pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla czerownych diod
 pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
-//Dla L
-//pid_t pid1 = { .p.Kp=0.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 // Regulacja PID
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -145,6 +134,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			TIM3->CCR4 = 0;
 		}
 	}
+	if(htim-> Instance == TIM6)
+	{
+		int var = luxMeasuredValue;
+		sprintf(text_buffer, "S %d M %d", luxSetValue, var);
+		LCD_write_command(LCD_CLEAR_INSTRUCTION);
+		LCD_write_text(text_buffer);
+	}
+	if(htim-> Instance == TIM4)
+	{
+		if(startPrinting!=0)
+		{
+			char intensywnosc[20];
+			sprintf(intensywnosc,"%.3f [Lx]\r", luxMeasuredValue);
+			HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
+		}
+	}
 }
 
 // Odbior wiadomosci z terminala, ustawienie danej wartosci jasnosci
@@ -152,9 +157,61 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart -> Instance == USART3)
 	{
-		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
-		luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
-		//luxSetValue = atof(text);
+		HAL_UART_Receive_IT(&huart3, (uint8_t*)kod, 1);
+		if(kod[0]!=';')
+		{
+			int len = strlen(inputCommand);
+			inputCommand[len] = kod[0];
+			inputCommand[len+1] = '\0';
+		}
+		else if(kod[0]==';') 											//Wykrywanie konca przesylu znakow
+		{
+			if((strncmp("printOn",inputCommand,7)==0))					//Porównanie 2 lancuchow znakow dana ich ilosc
+			{
+				startPrinting = 1;										//zaczecie transmisji przez UART pomiarow
+			}else if((strncmp("printOff",inputCommand,8)==0))					//Porównanie 2 lancuchow znakow dana ich ilosc
+			{
+				startPrinting = 0;
+			}else if((strncmp("setValue=",inputCommand,9)==0))			//Ustalenie wartosci swiatla
+			{
+//				int n = 0;
+//				char tmpValue[5];
+//				for(int i=9; i< 15; i++)
+//				{
+//					if(inputCommand[i]!='\0')
+//					{
+//						tmpValue[n]=inputCommand[i];
+//						n++;
+//					}else
+//					{
+//						i = 15;
+//					}
+//				}
+//				luxSetValue = atoi(tmpValue);
+				luxSetValue = readingString(9, 15, inputCommand);
+			}else if((strncmp("freq=",inputCommand,5)==0))
+			{
+//				int n = 0;
+//				char tmpValue[5];
+//				for(int i=5; i< 7; i++)
+//				{
+//					if(inputCommand[i]!='\0')
+//					{
+//						tmpValue[n]=inputCommand[i];
+//						n++;
+//					}else
+//					{
+//						i = 7;
+//					}
+//				}
+//				sendingFrequency = atoi(tmpValue);
+				sendingFrequency = readingString(5, 7, inputCommand);
+				TIM4-> ARR = 9999/sendingFrequency;
+			}
+			memset(inputCommand, '\0', strlen(inputCommand)); //czyszczenietablicy char
+		}
+		//		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
+		//		luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
 	}
 }
 /* USER CODE END 0 */
@@ -192,17 +249,21 @@ int main(void)
 	MX_TIM7_Init();
 	MX_TIM3_Init();
 	MX_TIM2_Init();
+	MX_TIM6_Init();
+	MX_TIM4_Init();
 	/* USER CODE BEGIN 2 */
-
 	//Inicjalizacja czujnika z wybranym trybem pracy
 	uint8_t TrybPracy = BH1750_CONTINOUS_H_RES_MODE;
 	BH1750_Init(&hbh1750_1, TrybPracy);
-
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim4);
+	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
+	HAL_UART_Receive_IT(&huart3, (uint8_t*)kod, 1);
+	LCD_write_command(LCD_CLEAR_INSTRUCTION);
+	LCD_init();
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

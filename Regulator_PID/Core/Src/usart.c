@@ -127,5 +127,21 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-
+int* readingString(int start, int stop, char *tablica)
+{
+	int n = 0;
+	char tmpValue[5];
+	for(start; start< stop; start++)
+	{
+		if(tablica[start]!='\0')
+		{
+			tmpValue[n]=tablica[start];
+			n++;
+		}else
+		{
+			start = stop;
+		}
+	}
+	return atoi(tmpValue);
+}
 /* USER CODE END 1 */

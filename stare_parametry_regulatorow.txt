@@ -1,0 +1,23 @@
+//pid_t pid1 = { .p.Kp=0.555*4.608, .p.Ki=2*0.00625, .p.Kd=0.4 * 0.00625, .p.dt=0.05, .previous_error=0, .previous_integral=0 };
+
+//Eryka
+//pid_t pid1 = { .p.Kp=0.0024, .p.Ki=0.945, .p.Kd=0.000, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+
+//Zmiany Kuba
+//pid_t pid1 = { .p.Kp=0.0024, .p.Ki=0.945, .p.Kd=0.189, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+//pid_t pid1 = { .p.Kp=0.1, .p.Ki=0.945, .p.Kd=0.150, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+
+//Najlepsze:
+//pid_t pid1 = { .p.Kp=0.64649, .p.Ki=0.64649/0.069384, .p.Kd=0.64649*0.017346, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+
+//Nowe Wojtka
+//pid_t pid1 = { .p.Kp=1.4745, .p.Ki=0.08154, .p.Kd=0.017796, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+//Zmiany
+//pid_t pid1 = { .p.Kp=2.5998, .p.Ki=2.5998/0.093233, .p.Kd=2.5998*0.017511, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+
+//Najlepsze regulacja 0.5s
+//Dla zielonych diod
+//pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+
+//Dla czerownych diod
+pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
