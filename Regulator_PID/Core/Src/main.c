@@ -112,10 +112,10 @@ float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measu
 float32_t pidOutput = 0.0;
 
 //Dla zielonych diod
-pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+//pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla czerownych diod
-//pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 // Regulacja PID
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -133,7 +133,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		else{
 			TIM3->CCR4 = 0;
 		}
-
 	}
 	if(htim-> Instance == TIM6)
 	{
@@ -159,7 +158,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 	}
 }
-
 // Odbior wiadomosci z terminala, ustawienie danej wartosci jasnosci
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -177,7 +175,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			if((strncmp("printOn",inputCommand,7)==0))					//Porównanie 2 lancuchow znakow dana ich ilosc
 			{
 				startPrinting = 1;										//zaczecie transmisji przez UART pomiarow
-			}else if((strncmp("printOff",inputCommand,8)==0))					//Porównanie 2 lancuchow znakow dana ich ilosc
+			}else if((strncmp("printOff",inputCommand,8)==0))
 			{
 				startPrinting = 0;
 			}else if((strncmp("setValue=",inputCommand,9)==0))			//Ustalenie wartosci swiatla
@@ -190,8 +188,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			}
 			memset(inputCommand, '\0', strlen(inputCommand)); //czyszczenietablicy char
 		}
-		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
-		luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
+		//HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
+		//luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
 	}
 }
 /* USER CODE END 0 */
