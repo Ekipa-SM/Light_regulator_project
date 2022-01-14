@@ -25,8 +25,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+//#include <stdio.h>
 #include "bh1750.h"
 #include "arm_math.h"
+#include "LCD.h"
+
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,9 +53,10 @@
 /* USER CODE BEGIN PV */
 //char text[]="000";
 char text[3];
-float luxSetValue = 0.0;
+int luxSetValue = 0;
 float luxMeasuredValue = 0.0;
 float light = 0;
+char text_buffer[LCD_MAXIMUM_LINE_LENGTH];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,10 +127,10 @@ float32_t pidOutput = 0.0;
 
 //Najlepsze regulacja 0.5s
 //Dla zielonych diod
-//pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla czerownych diod
-pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+//pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla L
 //pid_t pid1 = { .p.Kp=0.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
@@ -144,6 +150,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		else{
 			TIM3->CCR4 = 0;
 		}
+
+	}
+	if(htim-> Instance == TIM6)
+	{
+		int var = luxMeasuredValue;
+		sprintf(text_buffer, "S %d M %d", luxSetValue, var);
+		LCD_write_command(LCD_CLEAR_INSTRUCTION);
+		LCD_write_text(text_buffer);
 	}
 }
 
@@ -154,7 +168,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
 		luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
-		//luxSetValue = atof(text);
 	}
 }
 /* USER CODE END 0 */
@@ -192,6 +205,7 @@ int main(void)
 	MX_TIM7_Init();
 	MX_TIM3_Init();
 	MX_TIM2_Init();
+	MX_TIM6_Init();
 	/* USER CODE BEGIN 2 */
 
 	//Inicjalizacja czujnika z wybranym trybem pracy
@@ -200,9 +214,14 @@ int main(void)
 
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
+	LCD_write_command(LCD_CLEAR_INSTRUCTION);
+	LCD_init();
+
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
