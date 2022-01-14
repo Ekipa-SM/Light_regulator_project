@@ -152,8 +152,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		if(startPrinting!=0)
 		{
-			char intensywnosc[20];
-			sprintf(intensywnosc,"%.3f [Lx]\r", luxMeasuredValue);
+			char intensywnosc[30];
+			//sprintf(intensywnosc,"%.3f [Lx]\r", luxMeasuredValue);
+			sprintf(intensywnosc,"{\"lux\":%0.2f}\r\n", luxMeasuredValue);
 			HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
 		}
 	}
@@ -186,7 +187,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				sendingFrequency = readingString(5, 7, inputCommand);
 				TIM4-> ARR = 9999/sendingFrequency;
 			}
-			memset(inputCommand, '\0', strlen(inputCommand)); //czyszczenietablicy char
+			memset(inputCommand, '\0', strlen(inputCommand)); 			//czyszczenie tablicy char
 		}
 		//HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
 		//luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
