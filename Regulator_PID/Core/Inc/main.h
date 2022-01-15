@@ -59,6 +59,18 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define LCD_RS_Pin GPIO_PIN_2
 #define LCD_RS_GPIO_Port GPIOE
+#define BUTTON_SET_Pin GPIO_PIN_3
+#define BUTTON_SET_GPIO_Port GPIOE
+#define BUTTON_SET_EXTI_IRQn EXTI3_IRQn
+#define BUTTON_1_Pin GPIO_PIN_4
+#define BUTTON_1_GPIO_Port GPIOE
+#define BUTTON_1_EXTI_IRQn EXTI4_IRQn
+#define BUTTON_10_Pin GPIO_PIN_5
+#define BUTTON_10_GPIO_Port GPIOE
+#define BUTTON_10_EXTI_IRQn EXTI9_5_IRQn
+#define BUTTON_100_Pin GPIO_PIN_6
+#define BUTTON_100_GPIO_Port GPIOE
+#define BUTTON_100_EXTI_IRQn EXTI9_5_IRQn
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
 #define MCO_Pin GPIO_PIN_0
