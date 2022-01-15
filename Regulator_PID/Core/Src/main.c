@@ -27,8 +27,10 @@
 /* USER CODE BEGIN Includes */
 //#include <stdio.h>
 #include "bh1750.h"
+#include "math.h"
 #include "arm_math.h"
 #include "LCD.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +56,15 @@ char text[3];
 int luxSetValue = 0;
 float luxMeasuredValue = 0.0;
 float light = 0;
-char text_buffer[LCD_MAXIMUM_LINE_LENGTH];
+char textBuffer[LCD_MAXIMUM_LINE_LENGTH];
+char textBuffer2[LCD_MAXIMUM_LINE_LENGTH];
+int startDisplay = 0;
+int lcdTempValue = 0;
+int lcd1 = 0;
+int lcd10 = 0;
+int lcd100 = 0;
+int lcd1000 = 0;
+int flag = 0;
 //Zmienne do pythona i komunikacji poprzez UART
 char inputCommand[20];
 int startPrinting = 0;
@@ -137,16 +147,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim-> Instance == TIM6)
 	{
 		int var = luxMeasuredValue;
-		sprintf(text_buffer, "S %d M %d", luxSetValue, var);
-		LCD_write_command(LCD_CLEAR_INSTRUCTION);
-		LCD_write_text(text_buffer);
-	}
-	if(htim-> Instance == TIM6)
-	{
-		int var = luxMeasuredValue;
-		sprintf(text_buffer, "S %d M %d", luxSetValue, var);
-		LCD_write_command(LCD_CLEAR_INSTRUCTION);
-		LCD_write_text(text_buffer);
+		sprintf(textBuffer, "S %d M %d   ", luxSetValue, var);
+		LCD_goto_line(0);
+		LCD_write_text(textBuffer);
 	}
 	if(htim-> Instance == TIM4)
 	{
@@ -158,6 +161,51 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			HAL_UART_Transmit(&huart3, intensywnosc, strlen(intensywnosc), 1000);
 		}
 	}
+
+}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+
+	if(GPIO_Pin == GPIO_PIN_3)
+	{
+
+		luxSetValue = lcd1000*1000 + lcd100*100 + lcd10*10 + lcd1;
+		flag = 1;
+		lcd1 = 0;
+		lcd10 = 0;
+		lcd100 = 0;
+		lcd1000 = 0;
+		LCD_write_command(LCD_CLEAR_INSTRUCTION);
+
+	}
+	else if(GPIO_Pin == BUTTON_1_Pin)
+	{
+		lcd1 += 1;
+		if(lcd1 > 9)
+			lcd1 = 0;
+
+	}
+	else if(GPIO_Pin == BUTTON_10_Pin)
+	{
+		lcd10 += 1;
+		if(lcd10 > 9)
+			lcd10 = 0;
+	}
+	else if(GPIO_Pin == BUTTON_100_Pin)
+	{
+		lcd100 += 1;
+		if(lcd100 > 9)
+		{
+			lcd100 = 0;
+			lcd1000 += 1;
+			if(lcd1000 > 9)
+				lcd1000=0;
+		}
+	}
+	lcdTempValue = lcd1000*1000 +lcd100*100 + lcd10*10 + lcd1;
+	sprintf(textBuffer2, "WHAT TO SET %d", lcdTempValue);
+	LCD_goto_line(1);
+	LCD_write_text(textBuffer2);
 }
 // Odbior wiadomosci z terminala, ustawienie danej wartosci jasnosci
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -193,6 +241,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		//luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
 	}
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -241,14 +291,12 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 	HAL_UART_Receive_IT(&huart3, (uint8_t*)kod, 1);
-	LCD_write_command(LCD_CLEAR_INSTRUCTION);
-	LCD_init();
 	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
-	LCD_write_command(LCD_CLEAR_INSTRUCTION);
 	LCD_init();
+	LCD_write_command(LCD_CLEAR_INSTRUCTION);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
