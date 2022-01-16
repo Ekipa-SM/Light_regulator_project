@@ -19,17 +19,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
+#include "lwip.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-//#include <stdio.h>
 #include "bh1750.h"
-#include "math.h"
+#include "lwip/apps/httpd.h"
 #include "arm_math.h"
 #include "LCD.h"
+#include "http_ssi.h"
 
 /* USER CODE END Includes */
 
@@ -69,6 +70,10 @@ int flag = 0;
 char inputCommand[20];
 int startPrinting = 0;
 int sendingFrequency = 1;
+//HTTP
+int indx = 0;
+char const* TAGCHAR[]={"m", "s", "p"};
+char const** TAGS=TAGCHAR;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,7 +94,7 @@ typedef struct{
 typedef struct{
 	pid_parameters_t p;
 	float32_t previous_error, previous_integral;
-}pid_t;
+}pidT;
 
 typedef float float32_t;
 float32_t system_output = 0.0;
@@ -98,7 +103,7 @@ BH1750_HandleTypeDef hbh1750_1 = {
 		.I2C = &hi2c1, .Address = BH1750_ADDRESS_L, .Timeout = 0xffff};
 
 //Funkcja odpowiadajaca za kalkulacje PID
-float32_t calculate_discrete_pid(pid_t* pid, float32_t setpoint, float32_t measured){
+float32_t calculate_discrete_pid(pidT* pid, float32_t setpoint, float32_t measured){
 	float32_t u=0, P, I, D, error, integral, derivative;
 	error = setpoint-measured;
 
@@ -125,7 +130,7 @@ float32_t pidOutput = 0.0;
 //pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla czerownych diod
-pid_t pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+pidT pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 // Regulacja PID
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -242,7 +247,42 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
+// HTPP WWW
+extern struct netif gnetif;
 
+
+uint16_t ssi_handler (int iIndex, char *pcInsert, int iInsertLen)
+{
+	int var = luxMeasuredValue;
+	int var2 = pidOutput;
+	switch (iIndex) {
+	case 0:
+
+		sprintf(pcInsert, "%d", var);
+		return strlen(pcInsert);
+		break;
+	case 1:
+		sprintf(pcInsert, "%d", luxSetValue);
+		return strlen(pcInsert);
+		break;
+	case 2:
+		sprintf(pcInsert, "%d", var2);
+		return strlen(pcInsert);
+		break;
+	default :
+		break;
+	}
+
+	return 0;
+}
+
+
+void http_server_init (void)
+{
+	httpd_init();
+
+	http_set_ssi_handler(ssi_handler, (char const**) TAGS, 3);
+}
 /* USER CODE END 0 */
 
 /**
@@ -254,6 +294,12 @@ int main(void)
 	/* USER CODE BEGIN 1 */
 
 	/* USER CODE END 1 */
+
+	/* Enable I-Cache---------------------------------------------------------*/
+	SCB_EnableICache();
+
+	/* Enable D-Cache---------------------------------------------------------*/
+	SCB_EnableDCache();
 
 	/* MCU Configuration--------------------------------------------------------*/
 
@@ -280,6 +326,7 @@ int main(void)
 	MX_TIM2_Init();
 	MX_TIM6_Init();
 	MX_TIM4_Init();
+	MX_LWIP_Init();
 	/* USER CODE BEGIN 2 */
 	//Inicjalizacja czujnika z wybranym trybem pracy
 	uint8_t TrybPracy = BH1750_CONTINOUS_H_RES_MODE;
@@ -297,6 +344,9 @@ int main(void)
 	HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
 	LCD_init();
 	LCD_write_command(LCD_CLEAR_INSTRUCTION);
+
+	// inicialize httpd demand
+	http_server_init();
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -306,6 +356,8 @@ int main(void)
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+		ethernetif_input(&gnetif);
+		sys_check_timeouts();
 
 	}
 	/* USER CODE END 3 */
@@ -326,19 +378,25 @@ void SystemClock_Config(void)
 	/** Configure the main internal regulator output voltage
 	 */
 	__HAL_RCC_PWR_CLK_ENABLE();
-	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 	/** Initializes the RCC Oscillators according to the specified parameters
 	 * in the RCC_OscInitTypeDef structure.
 	 */
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-	RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-	RCC_OscInitStruct.PLL.PLLM = 4;
-	RCC_OscInitStruct.PLL.PLLN = 72;
+	RCC_OscInitStruct.PLL.PLLM = 25;
+	RCC_OscInitStruct.PLL.PLLN = 432;
 	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
 	RCC_OscInitStruct.PLL.PLLQ = 3;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	/** Activate the Over-Drive mode
+	 */
+	if (HAL_PWREx_EnableOverDrive() != HAL_OK)
 	{
 		Error_Handler();
 	}
@@ -348,10 +406,10 @@ void SystemClock_Config(void)
 			|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
 	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK)
 	{
 		Error_Handler();
 	}

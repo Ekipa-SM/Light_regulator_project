@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <title>
+            Light Regulator
+        </title>
+	<meta http-equiv="refresh" content="1">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .diodes {
+                width: 100%;
+                height: 100%;
+                display: flex;
+            }
+
+            .diode-left {
+                background-color: rgba(0, 255, 0, 0.4);
+                width: 50%;
+                height: 100%;
+                position: relative;
+                
+            }
+
+            .diode-right {
+                background-color: rgba(0, 255, 0, 1);
+                width: 50%;
+                height: 100%;
+                position: relative;
+            }
+
+            .diode-left-text {
+                font-size: 5.5vw;
+                display: block;
+                position: absolute;
+                bottom: 28%;
+                left: 15%;
+                margin: 0;
+                padding: 0;
+                color: rgba(0, 255, 0, 0.4);
+            }
+            .PWM-left {
+                width: 30%;
+                height: 0;
+                padding-top: 30%;
+                border-radius: 50%;
+                background-color: white;
+                position: relative;
+                top: 57%;
+                left:34%;
+            }
+            .PWM-right {
+                width: 30%;
+                height: 0;
+                padding-top: 30%;
+                border-radius: 50%;
+                background-color: white;
+                position: relative;
+                top: 57%;
+                left:34%;
+            }
+            .diode-right-text {
+                font-size: 5.5vw;
+                display: block;
+                position: absolute;
+                bottom: 28%;
+                left: 7%;
+                margin: 0;
+                padding: 0;
+                color: rgba(0, 255, 0, 1);
+            }
+            .variables {
+                width: 200%;
+                height: 0;
+                padding-top: 100%;
+                background-color: white;
+                border-radius: 40px;
+                position: absolute;
+                top: -150%;
+                left: 120%;
+                z-index: 1;
+                position: absolute;
+            }
+            .measurements {
+                position: absolute;
+                top: 10%;
+                left: 10%;
+                font-size: 2vw;
+            }
+            .setValue {
+                position: absolute;
+                top: 32.5%;
+                left: 10%;
+                font-size: 2vw;
+            }
+            .what {
+                position: absolute;
+                top: 55%;
+                left: 10%;
+                font-size: 2vw;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="diodes"> 
+            <div class="diode-left">
+                <div class="PWM-left">
+                    <p class="diode-left-text">40%</p>
+                    <div class="variables">
+                        <p class="measurements">Measurements: <!--#m--></p>
+                        <p class="setValue">Set Value: <!--#s--></p>
+                        <p class="what">What to Set: </p>
+                    </div>
+                </div> 
+            </div>
+            <div class="diode-right">
+                <div class="PWM-right">
+                    <p class="diode-right-text">100%</p>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+</html>
