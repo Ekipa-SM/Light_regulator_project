@@ -242,8 +242,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			}
 			memset(inputCommand, '\0', strlen(inputCommand)); 			//czyszczenie tablicy char
 		}
-		//HAL_UART_Receive_IT(&huart3, (uint8_t*)text, 3);
-		//luxSetValue =(text[0]-48)*100 + (text[1]-48)*10 + text[2]- 48 ;
 	}
 }
 

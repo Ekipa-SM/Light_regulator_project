@@ -16,11 +16,9 @@ sleep(0.5)
 set_point = 150;
 hSerial.write(b'setValue=150;')
 sleep(0.5)
-# hSerial.write(b'freq=1;')
-# sleep(0.5)
+hSerial.write(b'freq=50;')
+sleep(0.5)
 
-#timestr = time.strftime("%Y%m%d-%H%M%S")    #data
-#hFile = open("pomiary_python%s.txt" % (timestr), "a")            #otwarcie pliku z temperaturami, 'a' - otwarcie pliku do konfiguracji
 hFile = open("pomiary_python.txt", "a")
 
 hSerial.reset_input_buffer()
