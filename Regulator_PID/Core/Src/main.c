@@ -74,6 +74,7 @@ int sendingFrequency = 1;
 int indx = 0;
 char const* TAGCHAR[]={"m", "s", "p"};
 char const** TAGS=TAGCHAR;
+char name[30];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -274,12 +275,32 @@ uint16_t ssi_handler (int iIndex, char *pcInsert, int iInsertLen)
 	return 0;
 }
 
+const char *CGIForm_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+
+const tCGI FORM_CGI = {"/form.cgi", CGIForm_Handler};
+
+const char *CGIForm_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+	if(iIndex == 0)
+	{
+		for (int i=0; i<iNumParams; i++)
+		{
+			if (strcmp(pcParam[i], "whatToSet") == 0)
+			{
+				//memset(name, '\0', 30);
+				strcpy(name, pcValue[i]);
+			}
+		}
+	}
+	return "/ssipage.shtml";
+}
 
 void http_server_init (void)
 {
 	httpd_init();
 
 	http_set_ssi_handler(ssi_handler, (char const**) TAGS, 3);
+	http_set_cgi_handlers(&FORM_CGI, 1);
 }
 /* USER CODE END 0 */
 
