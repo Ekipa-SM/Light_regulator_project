@@ -287,8 +287,8 @@ const char *CGIForm_Handler(int iIndex, int iNumParams, char *pcParam[], char *p
 		{
 			if (strcmp(pcParam[i], "whatToSet") == 0)
 			{
-				//memset(name, '\0', 30);
 				strcpy(name, pcValue[i]);
+				luxSetValue = atoi(name);
 			}
 		}
 	}
