@@ -3,6 +3,7 @@
         <title>
             Light Regulator
         </title>
+	<meta http-equiv="refresh" content="1">
         <style>
             body {
                 margin: 0;
@@ -34,7 +35,7 @@
                 margin: 0;
                 padding: 0;
                 margin-top: -15%;
-                color: rgba(0, 255, 0, 0.4);
+                color: rgba(0, 255, 0, 1);
             }
             .PWM-left {
                 width: 30%;
@@ -67,12 +68,12 @@
                 margin: 0;
                 padding: 0;
                 margin-top: -15%;
-                color: rgba(0, 255, 0, 0.4);
+                color: rgba(0, 255, 0, 1);
             }
             .variables {
                 width: 200%;
                 height: 0;
-                padding-top: 170%;
+                padding-top: 70%;
                 background-color: white;
                 border-radius: 40px;
                 position: absolute;
@@ -94,47 +95,10 @@
                 font-size: 2vw;
             }
             .what {
+                position: absolute;
+                top: 55%;
+                left: 10%;
                 font-size: 2vw;
-            }
-            .pidOutput {
-                display: none;
-            }
-            .rangeslider{
-                width: 100%;
-                margin-top: -120px;
-
-            }
-            
-            .myslider {
-                background: #FCF3CF  ;
-                width: 80%;
-                height: 20px;
-                opacity: 2;
-            } 
-            .myslider:hover {
-                opacity: 1;
-            }
-
-            .get-btn {
-                background-color: rgba(0, 255, 0, 1);
-                color: white;  
-                font-weight: 700;
-                border: none;
-                border-radius: 5px;        
-                height: 35px;  
-                width: 120px;
-                cursor: pointer;
-            }
-
-            .send-btn {
-                background-color: rgba(0, 0, 255, 1);
-                color: white;  
-                font-weight: 700;
-                border: none;
-                border-radius: 5px;        
-                height: 35px;  
-                width: 120px;
-                cursor: pointer;
             }
             .pidOutput {
                 display: none;
@@ -145,33 +109,26 @@
         <div class="diodes"> 
             <div class="diode-left">
                 <div class="PWM-left">
-                    <p class="diode-left-text">40%</p>
+                    <p class="diode-left-text">0%</p>
                     <div class="variables">
-                        <p class="measurements">Measurements: <!--#m-->[Lx]</p>
-                        <p class="setValue">Set Value: <!--#s-->[Lx]</p>
-                        <p class="pidOutput"> <!--#p--></p>
- <div class="rangeslider">
-                        <form action="/form.cgi">
-                           
-                                <label class="what" for="whatToSet"> What to Set:</label> <br>
-                                <input type="range" id="whatToSet" name="whatToSet" min="0" max="2400" value="0" class="myslider" id="sliderRange"> <br>
-                                <div>
-                                    <input class="get-btn" type="button" value="Get On">
-                                    <input class="send-btn" type="submit" value="Send Set Value">
-                                    
-                                </div>
-                            
-                        </form>
-</div>
-                        <p class="pidOutput">600</p>
+                        <p class="measurements">Measurements: <!--#m--> [Lx]</p>
+                        <p class="setValue">Set Value: <!--#s--> [Lx]</p>
+                        <p class="pidOutput"><!--#p--></p>
                     </div>
                 </div> 
             </div>
             <div class="diode-right">
                 <div class="PWM-right">
-                    <p class="diode-right-text">100%</p>
+                    <p class="diode-right-text">0%</p>
                 </div>
             </div>
+<form action="/form.cgi">
+  <label for="fname">First name:</label><br>
+  <input type="text" id="fname" name="fname" value="John"><br>
+  <label for="lname">Last name:</label><br>
+  <input type="text" id="lname" name="lname" value="Doe"><br><br>
+  <input type="submit" value="Submit">
+</form> 
         </div>
         <script>
             let leftDiodeText = document.querySelector(".diode-left-text");
@@ -179,74 +136,35 @@
             let leftDiodeBackground = document.querySelector(".diode-left");
             let rightDiodeBackground = document.querySelector(".diode-right");
             let pid = document.querySelector(".pidOutput");
-            let value = document.querySelector("#demo");
-            let slider = document.querySelector(".myslider");
-            let setValue = document.querySelector(".setValue");
-            console.log(slider.valueAsNumber);
-            console.log(pid);
             let pidOutput = pid.textContent;
-            let buttonSend = document.querySelector(".send-btn");
-            let buttonGet = document.querySelector(".get-btn");
-            let reloading = 1;
-            let timeoutHandle = window.setTimeout(function () {
-                    window.location.reload();
-                }, 1000);
-            slider.oninput = function() {
-                pidOutput = this.valueAsNumber;
-                console.log(pidOutput);
-                calculate();
-                setValue.textContent = "Set Value: " + Math.floor(pidOutput) + " [Lx]";
+            if(pidOutput <= 1000)
+            {
+                rightDiodeText.innerHTML = pidOutput/10 + "%";
+                leftDiodeText.innerHTML = 0 +"%";
+                let val = pidOutput/1000;
+                rightDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, ${val})`;
+                leftDiodeText.style.color = `rgba(0, 255, 0, 1`;
+                rightDiodeText.style.color = `rgba(0, 255, 0, ${val+0.3})`;
+                leftDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 0`;
             }
-calculate();
-            function calculate() {
-                    if (pidOutput <= 1000) {
-                    rightDiodeText.innerHTML = pidOutput / 10 + "%";
-                    leftDiodeText.innerHTML = 0 + "%";
-                    let val = pidOutput / 1000;
-                    rightDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, ${val})`;
-                    leftDiodeText.style.color = `rgba(0, 255, 0, 1`;
-                    rightDiodeText.style.color = `rgba(0, 255, 0, ${val + 0.3})`;
-                    leftDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 0`;
-                }
-                else if (pidOutput > 1000 && pidOutput <= 2000) {
-                    rightDiodeText.innerHTML = "100%";
-                    rightDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 1)`;
-                    leftDiodeText.innerHTML = (pidOutput - 1000) / 10 + "%";
-                    let val = (pidOutput - 1000) / 1000;
-                    leftDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, ${val})`;
-                    rightDiodeText.style.color = `rgba(0, 255, 0, 1`;
-                    leftDiodeText.style.color = `rgba(0, 255, 0, ${val + 0.3})`;
-                }
-                else if (pidOutput > 2000) {
-                    rightDiodeText.innerHTML = "100%";
-                    rightDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 1)`;
-                    leftDiodeText.innerHTML = "100%";
-                    leftDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 1)`;
-                    rightDiodeText.style.color = `rgba(0, 255, 0, 1`;
-                    leftDiodeText.style.color = `rgba(0, 255, 0, 1)`;
-                }
+            else if(pidOutput>1000&& pidOutput<=2000)
+            {
+                rightDiodeText.innerHTML = "100%";
+                rightDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 1)`;
+                leftDiodeText.innerHTML = (pidOutput-1000)/10 +"%";
+                let val = (pidOutput-1000) / 1000;
+                leftDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, ${val})`;
+                rightDiodeText.style.color = `rgba(0, 255, 0, 1`;
+                leftDiodeText.style.color = `rgba(0, 255, 0, ${val + 0.3})`;
             }
-
-            buttonGet.onclick = function () {
-                if(buttonGet.value === "Get On")
-                {
-                    buttonGet.style.backgroundColor = "rgba(255, 0, 0, 1)";
-                    buttonGet.value = "Get Off";
-                    reloading = 0;
-                    console.log(buttonGet)
-                    window.clearTimeout(timeoutHandle);
-                }
-                else
-                {
-                    buttonGet.style.backgroundColor = "rgba(0, 255, 0, 1)";
-                    buttonGet.value = "Get On";
-                    reloading = 1;
-                    console.log(buttonGet)
-                    timeoutHandle = window.setTimeout(function () {
-                        window.location.reload();
-                    }, 1000);
-                }
-            };
+            else if(pidOutput > 2000) {
+                rightDiodeText.innerHTML = "100%";
+                rightDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 1)`;
+                leftDiodeText.innerHTML = "100%";
+                leftDiodeBackground.style.backgroundColor = `rgba(0, 255, 0, 1)`;
+                rightDiodeText.style.color = `rgba(0, 255, 0, 1`;
+                leftDiodeText.style.color = `rgba(0, 255, 0, 1)`;
+            }
         </script>
     </body>
 </html>
