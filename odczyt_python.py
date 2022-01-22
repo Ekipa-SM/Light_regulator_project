@@ -14,9 +14,9 @@ hSerial = serial.Serial('COM3', 38400, timeout=1, parity=serial.PARITY_NONE)  #U
 hSerial.write(b'printOn;')  #Write the bytes data to the port.
 sleep(0.5)
 set_point = 150;
-hSerial.write(b'setValue=800;')
+hSerial.write(b'setValue=200;')
 sleep(0.5)
-hSerial.write(b'freq=10;')
+hSerial.write(b'freq=2;')
 sleep(0.5)
 
 hFile = open("pomiary_python.txt", "a")
