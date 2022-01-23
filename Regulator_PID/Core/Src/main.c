@@ -144,6 +144,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	if(htim-> Instance == TIM2)
 	{
+		luxSetValue = luxSetValue>2400 ? 2400 : luxSetValue;
+		luxSetValue = luxSetValue<0 ? 0 : luxSetValue;
 		pidOutput = calculate_discrete_pid(&pid1, luxSetValue, luxMeasuredValue );
 		TIM3->CCR3 = pidOutput;
 		if(pidOutput > 1000){
@@ -242,7 +244,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			}else if((strncmp("freq=",inputCommand,5)==0))
 			{
 				sendingFrequency = readingString(5, 7, inputCommand);
-				TIM4-> ARR = 9999/sendingFrequency;
+				TIM4-> ARR = 4999/sendingFrequency;
 			}
 			memset(inputCommand, '\0', strlen(inputCommand)); 			//czyszczenie tablicy char
 		}
