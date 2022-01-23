@@ -24,6 +24,8 @@ hFile = open("pomiary_python.txt", "a")
 hSerial.reset_input_buffer()
 hSerial.flush()                 #chyba wywalenie tego
 light_samples = [];
+pid_samples = [];
+setValue_samples = [];
 t = [];
 t_value=0;
 plt.show()
@@ -32,10 +34,14 @@ plt.show()
 while True:
     text = hSerial.readline()           #Pobranie 1 linijki pomiaru
     light = 0
+    pid = 0
+    setValue = 0
     sample = 0
     try:
         sample = json.loads(text)               #pobranie tekstu w formie json
         light = sample["lux"]     #
+        pid = sample["pid"]
+        setValue = sample["set"]
     except ValueError:                          #jezeli sie nie uda wczytac JSON
         print("Bad JSON")
         print("%s\r\n" % {text})
@@ -44,14 +50,19 @@ while True:
     print(light)                          #printuje temperature w pythonie
     hFile.write("%.2f," % light)          #zapisanie zczytanej temperatury do pliku
     light_samples.append(light);    #dodanie pomierzonej wartosci do wektora temperatur
+    pid_samples.append(pid);
+    setValue_samples.append(setValue);
     t.append(t_value);
     t_value = t_value + 1
     # Plot results
     plt.clf()                                   #czyszczenie wykresu
-    plt.plot(t, light_samples, '.', markersize=5);             #plotowanie wykresu temperatury
+    plt.plot(t, light_samples, '.', label='sensivity', markersize=5);             #plotowanie wykresu temperatury
+    plt.plot(t, pid_samples, '.', label='pid output', markersize=5);
+    plt.plot(t, setValue_samples, '.', label='set value', markersize=5);
     plt.title("BMP1750 STM32 (controller sp=%d Lux)." % set_point)
     plt.xlabel("Time (s)")
     plt.ylabel("Light [lux]")
+    plt.legend()
     #plt.show()
     plt.pause(0.001)
     if keyboard.is_pressed("q"):
