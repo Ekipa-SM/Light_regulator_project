@@ -51,7 +51,7 @@ void MainWindow::ReadData()
      QJsonDocument doc = QJsonDocument::fromJson(br);
      QJsonObject obj = doc.object();
      QString name=obj["lux"].toString();
-     ui->lineEdit_2->setText(name);//zmienić na name
+     ui->lineEdit_2->setText(odebrane);//zmienić na name
 //     odebrane = odebrane.replace("{","");
 //     odebrane = odebrane.replace("}", "\t");
      //ui->lineEdit_2->setText(odebrane);
@@ -137,10 +137,12 @@ void MainWindow::on_pushButton_wyslij_v2_clicked()
     std::string str=arg1.toStdString();
     std::string poz="setValue=";
     std::string koniec=";";
-    poz=poz.append(str);
-    poz=poz.append(koniec);
-    dane=poz.c_str();
+    //poz=poz.append(str);
+    std::string lol = poz + str + koniec;
+    //poz=poz.append(koniec);
+    dane=lol.c_str();
     this-> device->write(dane); //wysyła 1 znak
+    qDebug(dane);
 }
 
 void MainWindow::on_pushButton_odbierz_v2_clicked()
