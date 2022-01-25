@@ -8,7 +8,7 @@ import keyboard #pip install keyboard
 
 """Ustaw odpowiedni COM"""
 plt.ion()   #newly created figures will be shown immediately; figures will automatically redraw on change;
-hSerial = serial.Serial('COM10', 38400, timeout=1, parity=serial.PARITY_NONE)  #Ustawienie portu szeregowego
+hSerial = serial.Serial('COM10', 115200, timeout=1, parity=serial.PARITY_NONE)  #Ustawienie portu szeregowego
 
 #Wysylanie waidomosci do kontrolera
 hSerial.write(b'printOn;')  #Write the bytes data to the port.
