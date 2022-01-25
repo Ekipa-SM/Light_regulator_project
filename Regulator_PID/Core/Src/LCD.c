@@ -55,9 +55,9 @@ void LCD_init(void)
 	//Return home
 	LCD_write_command(LCD_HOME_INSTRUCTION);	software_delay(100000);
 	
-	LCD_write_text("Torunczyk Chuj");
+	LCD_write_text("Test");
 	LCD_goto_line(1);
-	LCD_write_text("Rydzyk go jebal");
+	LCD_write_text("Test2");
 
 	uint8_t custom_char1[] = LCD_CUSTOM_CHAR_ARROW_UP_PATERN;
 	LCD_create_custom_character(custom_char1, 0);
