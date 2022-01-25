@@ -47,18 +47,18 @@ void MainWindow::ReadData()
  {
      QString odebrane=ui->lineEdit_2->text();
      std::string odebrane1;
-     QString odebrane_zadana = ui->lineEdit_3->text();
-     std::string odebrane_zadana1;
-     QString odebrane_pid = ui->lineEdit_4->text();
-     std::string odebrane_pid1;
+//     QString odebrane_zadana = ui->lineEdit_3->text();
+//     std::string odebrane_zadana1;
+//     QString odebrane_pid = ui->lineEdit_4->text();
+//     std::string odebrane_pid1;
      odebrane+=tr(buffer);
      odebrane1 = odebrane.toStdString();
 
-     odebrane_zadana+=tr(buffer);
-     odebrane_zadana1 = odebrane_zadana.toStdString();
+//     odebrane_zadana+=tr(buffer);
+//     odebrane_zadana1 = odebrane_zadana.toStdString();
 
-     odebrane_pid+=tr(buffer);
-     odebrane_pid1 = odebrane_pid.toStdString();
+//     odebrane_pid+=tr(buffer);
+//     odebrane_pid1 = odebrane_pid.toStdString();
 
      ui->lineEdit_2->clear();
      ui->lineEdit_3->clear();
@@ -70,17 +70,17 @@ void MainWindow::ReadData()
      odebrane1.copy(foundFinall,found2-found1,found1+1);
      ui->lineEdit_2->insert(foundFinall);
 
-     int found3 = odebrane_zadana1.find("set:");
-     int found4 = odebrane_zadana1.find(",");
-     char foundFinall1[20];
-     odebrane_zadana1.copy(foundFinall1,found4-found3,found1+5);
-     ui->lineEdit_3->insert(foundFinall1);
+//     int found3 = odebrane_zadana1.find("set:");
+//     int found4 = odebrane_zadana1.find(",");
+//     char foundFinall1[20];
+//     odebrane_zadana1.copy(foundFinall1,found4-found3,found1+5);
+//     ui->lineEdit_3->insert(foundFinall1);
 
-     int found5 = odebrane_pid1.find("pid:");
-     int found6 = odebrane_pid1.find(",");
-     char foundFinall2[20];
-     odebrane_zadana1.copy(foundFinall2,found6-found5,found1+10);
-     ui->lineEdit_4->insert(foundFinall2);
+//     int found5 = odebrane_pid1.find("pid:");
+//     int found6 = odebrane_pid1.find(",");
+//     char foundFinall2[20];
+//     odebrane_zadana1.copy(foundFinall2,found6-found5,found1+10);
+//     ui->lineEdit_4->insert(foundFinall2);
 
 
 //     QRegularExpression re("lux");
