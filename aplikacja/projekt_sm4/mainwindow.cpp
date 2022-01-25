@@ -5,6 +5,7 @@
 #include <QSerialPortInfo>
 #include <QMessageBox>
 #include <QIODevice>
+#include <QtDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -45,38 +46,72 @@ void MainWindow::ReadData()
  if(!buffer.isEmpty())
  {
      QString odebrane=ui->lineEdit_2->text();
-     ui->lineEdit_2->clear();
+     std::string odebrane1;
+     QString odebrane_zadana = ui->lineEdit_3->text();
+     std::string odebrane_zadana1;
+     QString odebrane_pid = ui->lineEdit_4->text();
+     std::string odebrane_pid1;
      odebrane+=tr(buffer);
-     QByteArray br = odebrane.toUtf8();
-     QJsonDocument doc = QJsonDocument::fromJson(br);
-     QJsonObject obj = doc.object();
-     QString name=obj["lux"].toString();
-     ui->lineEdit_2->setText(odebrane);//zmienić na name
+     odebrane1 = odebrane.toStdString();
+
+     odebrane_zadana+=tr(buffer);
+     odebrane_zadana1 = odebrane_zadana.toStdString();
+
+     odebrane_pid+=tr(buffer);
+     odebrane_pid1 = odebrane_pid.toStdString();
+
+     ui->lineEdit_2->clear();
+     ui->lineEdit_3->clear();
+     ui->lineEdit_4->clear();
+
+     int found1 = odebrane1.find(":");
+     int found2 = odebrane1.find(",");
+     char foundFinall[20];
+     odebrane1.copy(foundFinall,found2-found1,found1+1);
+     ui->lineEdit_2->insert(foundFinall);
+
+     int found3 = odebrane_zadana1.find("set:");
+     int found4 = odebrane_zadana1.find(",");
+     char foundFinall1[20];
+     odebrane_zadana1.copy(foundFinall1,found4-found3,found1+5);
+     ui->lineEdit_3->insert(foundFinall1);
+
+     int found5 = odebrane_pid1.find("pid:");
+     int found6 = odebrane_pid1.find(",");
+     char foundFinall2[20];
+     odebrane_zadana1.copy(foundFinall2,found6-found5,found1+10);
+     ui->lineEdit_4->insert(foundFinall2);
+
+
+//     QRegularExpression re("lux");
+//    QString str = odebrane.section(re, 1, 1);
+//    qDebug() << str;
+//     QJsonObject buffer;
+//     QJsonDocument doc(buffer);
+//     QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
+//     QString strJson = QLatin1String(docByteArray);
+//     qDebug() << strJson;
 //     odebrane = odebrane.replace("{","");
 //     odebrane = odebrane.replace("}", "\t");
-     //ui->lineEdit_2->setText(odebrane);
+//     odebrane = odebrane.replace("set", "\t");
+//    // odebrane = odebrane.remove();
 
-   // QByteArray bytes = QByteArray::fromHex(buffer);
-//     quint16 crcChars = qChecksum(buffer, strlen(buffer));
-//     quint16 crcBytes = qChecksum(bytes.data(), bytes.length());
-//     QString crc=QString::number(crcBytes);
-//     ui->lineEdit_4->setText(crc);
 
+
+
+     //QJsonArray test = obj["lux"].toArray();
+
+//     if (ui->lineEdit_2->text().isEmpty()){
+//         qDebug("puste");
+//          ui->lineEdit_2->insert(odebrane);//zmienić na name
+//          //ui->lineEdit_2->
+
+//      }
+//     odebrane = odebrane.replace("{","");
+//     odebrane = odebrane.replace("}", "\t");
 
  }
  buffer.clear();
-
-//    while(this->device->canReadLine()){
-
-//      QString line=this->device->readLine();
-//      QString endline = "\r";//usuwamy niepotrzebny koniec linii
-//      int pozycja=line.lastIndexOf(endline);
-
-//      this->addToLogs(line.left(pozycja)); //dodanie linii bez końcówki do terminala
-//        QByteArray bufi;
-//        bufi = this->device->readAll();
-
-//    }
 }
 
 void MainWindow::on_pushButton_polacz_clicked()
@@ -94,7 +129,7 @@ void MainWindow::on_pushButton_polacz_clicked()
     //zwracamy true gdy otwarcie portu się udało
     if(device->open(QSerialPort::ReadWrite)) //ustawiamy parametry połączenia
     {
-        device->setBaudRate(QSerialPort::Baud38400);// zmienić na 38400!!!!!!!!!!!
+        device->setBaudRate(QSerialPort::Baud115200);// zmienić na 38400!!!!!!!!!!!
         device->setDataBits(QSerialPort::Data8);
         device->setParity(QSerialPort::NoParity);
         device->setStopBits(QSerialPort::OneStop);
@@ -142,7 +177,6 @@ void MainWindow::on_pushButton_wyslij_v2_clicked()
     //poz=poz.append(koniec);
     dane=lol.c_str();
     this-> device->write(dane); //wysyła 1 znak
-    qDebug(dane);
 }
 
 void MainWindow::on_pushButton_odbierz_v2_clicked()

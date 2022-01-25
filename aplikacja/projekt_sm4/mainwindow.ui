@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>385</height>
+    <width>536</width>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,21 +103,77 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox_6">
+     <widget class="QGroupBox" name="groupBox_8">
       <property name="title">
-       <string>Odbieranie danych:</string>
+       <string>Odbieranie danych</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Wartość światła [lux]</string>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string/>
          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Wartość zadana</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_3"/>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_2"/>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Wartość światła [lux]</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_2"/>
+          </item>
+         </layout>
+        </widget>
        </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Wartość wyjściowa z regulatora PID</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_4"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox_9">
+      <property name="title">
+       <string>GroupBox</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
         <widget class="QPushButton" name="pushButton_odbierz_v2">
          <property name="text">
@@ -125,14 +181,14 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_stop">
+         <property name="text">
+          <string>Stop odbierania</string>
+         </property>
+        </widget>
+       </item>
       </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_stop">
-      <property name="text">
-       <string>Stop odbierania</string>
-      </property>
      </widget>
     </item>
    </layout>
@@ -142,7 +198,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>483</width>
+     <width>536</width>
      <height>17</height>
     </rect>
    </property>
