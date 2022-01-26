@@ -47,20 +47,23 @@ void MainWindow::ReadData()
 
  if(!buffer.isEmpty())
  {
-     QString data = QString(buffer);
-
+     //QString data = QString(buffer);
+     const char* data = buffer.constData();
      float zmienna1;
      float zmienna2;
      int arg;
-     sscanf(buffer,"{\"lux\":%f,\"set\":%d,\"pid\":%f}\r\n",&zmienna1, &arg, &zmienna2);
+     sscanf(data,"{\"lux\":%f,\"set\":%d,\"pid\":%f}\r\n",&zmienna1, &arg, &zmienna2);
      //sscanf(buffer,"{\"lux\":%f}\r\n",&zmienna1);
-     qDebug()<<zmienna1;
+
      QString wyjscie = QString::number(zmienna1);
      QString wyjscie2 = QString::number(zmienna2);
      QString wyjscie3 = QString::number(arg);
+     if(zmienna1, zmienna2, arg != 0){
+     qDebug()<<buffer << zmienna1;
      ui->lineEdit_2->setText(wyjscie);
      ui->lineEdit_3->setText(wyjscie3);
      ui->lineEdit_4->setText(wyjscie2);
+     }
 
  }
  buffer.clear();

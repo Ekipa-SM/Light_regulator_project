@@ -171,7 +171,7 @@
     <item>
      <widget class="QGroupBox" name="groupBox_9">
       <property name="title">
-       <string>GroupBox</string>
+       <string/>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
