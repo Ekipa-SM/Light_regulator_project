@@ -35,22 +35,12 @@ private slots:
 
     void on_pushButton_odbierz_v2_clicked();
 
-    void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
-
 private:
     Ui::MainWindow *ui;
     void addToLogs(QString message);
     QSerialPort *device;
-
-    int wartosc;
     QString arg1;
     QByteArray buffer;
-    QList<QString> data;
     const char* dane;
-    char a;
-
-
 };
 #endif // MAINWINDOW_H

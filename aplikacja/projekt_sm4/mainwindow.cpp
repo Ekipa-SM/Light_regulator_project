@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QIODevice>
 #include <QtDebug>
+#include <regex>
+#include <stdio.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -41,74 +43,24 @@ void MainWindow::on_pushButton_szukaj_clicked()
 void MainWindow::ReadData()
 {
  QByteArray buffer;
- buffer=device ->readAll();
+ buffer=device ->readLine();
 
  if(!buffer.isEmpty())
  {
-     QString odebrane=ui->lineEdit_2->text();
-     std::string odebrane1;
-//     QString odebrane_zadana = ui->lineEdit_3->text();
-//     std::string odebrane_zadana1;
-//     QString odebrane_pid = ui->lineEdit_4->text();
-//     std::string odebrane_pid1;
-     odebrane+=tr(buffer);
-     odebrane1 = odebrane.toStdString();
+     QString data = QString(buffer);
 
-//     odebrane_zadana+=tr(buffer);
-//     odebrane_zadana1 = odebrane_zadana.toStdString();
-
-//     odebrane_pid+=tr(buffer);
-//     odebrane_pid1 = odebrane_pid.toStdString();
-
-     ui->lineEdit_2->clear();
-     ui->lineEdit_3->clear();
-     ui->lineEdit_4->clear();
-
-     int found1 = odebrane1.find(":");
-     int found2 = odebrane1.find(",");
-     char foundFinall[20];
-     odebrane1.copy(foundFinall,found2-found1,found1+1);
-     ui->lineEdit_2->insert(foundFinall);
-
-//     int found3 = odebrane_zadana1.find("set:");
-//     int found4 = odebrane_zadana1.find(",");
-//     char foundFinall1[20];
-//     odebrane_zadana1.copy(foundFinall1,found4-found3,found1+5);
-//     ui->lineEdit_3->insert(foundFinall1);
-
-//     int found5 = odebrane_pid1.find("pid:");
-//     int found6 = odebrane_pid1.find(",");
-//     char foundFinall2[20];
-//     odebrane_zadana1.copy(foundFinall2,found6-found5,found1+10);
-//     ui->lineEdit_4->insert(foundFinall2);
-
-
-//     QRegularExpression re("lux");
-//    QString str = odebrane.section(re, 1, 1);
-//    qDebug() << str;
-//     QJsonObject buffer;
-//     QJsonDocument doc(buffer);
-//     QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-//     QString strJson = QLatin1String(docByteArray);
-//     qDebug() << strJson;
-//     odebrane = odebrane.replace("{","");
-//     odebrane = odebrane.replace("}", "\t");
-//     odebrane = odebrane.replace("set", "\t");
-//    // odebrane = odebrane.remove();
-
-
-
-
-     //QJsonArray test = obj["lux"].toArray();
-
-//     if (ui->lineEdit_2->text().isEmpty()){
-//         qDebug("puste");
-//          ui->lineEdit_2->insert(odebrane);//zmienić na name
-//          //ui->lineEdit_2->
-
-//      }
-//     odebrane = odebrane.replace("{","");
-//     odebrane = odebrane.replace("}", "\t");
+     float zmienna1;
+     float zmienna2;
+     int arg;
+     sscanf(buffer,"{\"lux\":%f,\"set\":%d,\"pid\":%f}\r\n",&zmienna1, &arg, &zmienna2);
+     //sscanf(buffer,"{\"lux\":%f}\r\n",&zmienna1);
+     qDebug()<<zmienna1;
+     QString wyjscie = QString::number(zmienna1);
+     QString wyjscie2 = QString::number(zmienna2);
+     QString wyjscie3 = QString::number(arg);
+     ui->lineEdit_2->setText(wyjscie);
+     ui->lineEdit_3->setText(wyjscie3);
+     ui->lineEdit_4->setText(wyjscie2);
 
  }
  buffer.clear();
@@ -137,7 +89,6 @@ void MainWindow::on_pushButton_polacz_clicked()
 
         this->addToLogs("Połączono z portem szeregowym");
         connect(this->device, SIGNAL(readyRead()), this, SLOT(ReadData));
-        //QObject::connect(device, &QSerialPort::readyRead, this, &MainWindow::ReadData);
     } else this->addToLogs("Otwarcie portu szeregowego się nie udało");
      return;
 }
@@ -172,10 +123,8 @@ void MainWindow::on_pushButton_wyslij_v2_clicked()
     std::string str=arg1.toStdString();
     std::string poz="setValue=";
     std::string koniec=";";
-    //poz=poz.append(str);
-    std::string lol = poz + str + koniec;
-    //poz=poz.append(koniec);
-    dane=lol.c_str();
+    std::string wyj = poz + str + koniec;
+    dane=wyj.c_str();
     this-> device->write(dane); //wysyła 1 znak
 }
 
@@ -183,18 +132,6 @@ void MainWindow::on_pushButton_odbierz_v2_clicked()
 {
 
 QObject::connect(device, &QSerialPort::readyRead, this, &MainWindow::ReadData);
-
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-
-
-}
-
-
-void MainWindow::on_pushButton_2_clicked()
-{
 
 }
 
