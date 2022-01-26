@@ -130,7 +130,7 @@ float32_t calculate_discrete_pid(pidT* pid, float32_t setpoint, float32_t measur
 float32_t pidOutput = 0.0;
 
 //Dla zielonych diod
-//pid_t pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
+//pidT pid1 = { .p.Kp=1.2731, .p.Ki=1.2731/0.079535, .p.Kd=1.2731*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
 
 //Dla czerownych diod
 pidT pid1 = { .p.Kp=0.1*1.2731, .p.Ki=0.5/0.079535, .p.Kd=0.7*0.019884, .p.dt=0.005, .previous_error=0, .previous_integral=0};
@@ -140,10 +140,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim-> Instance == TIM7)
 	{
-		luxMeasuredValue = BH1750_Read(&hbh1750_1);
+
 	}
 	if(htim-> Instance == TIM2)
 	{
+		luxMeasuredValue = BH1750_Read(&hbh1750_1);
 		luxSetValue = luxSetValue>2400 ? 2400 : luxSetValue;
 		luxSetValue = luxSetValue<0 ? 0 : luxSetValue;
 		pidOutput = calculate_discrete_pid(&pid1, luxSetValue, luxMeasuredValue );
